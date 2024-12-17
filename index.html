@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Karel JS</title>
+    <style>
+        .grid { display: grid; grid-template-columns: repeat(10, 40px); gap: 1px; }
+        .cell { width: 40px; height: 40px; border: 1px solid black; text-align: center; vertical-align: middle; }
+        .karel { background-color: lightblue; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Karel Robot - JavaScript</h1>
+    <textarea id="commands" rows="10" cols="30"></textarea><br>
+    <button onclick="runCommands()">Proveď</button>
+    <h2>Aktuální Herní Pole</h2>
+    <div id="grid"></div>
+
+    <script>
+        const gridSize = 10;
+        const directions = ['right', 'down', 'left', 'up'];
+        let grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
+        let x = 0, y = 0, direction = 'right';
+
+        function drawGrid() {
+            const gridContainer = document.getElementById('grid');
+            gridContainer.innerHTML = '';
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (i === y && j === x) cell.classList.add('karel');
+                    cell.textContent = grid[i][j];
+                    gridContainer.appendChild(cell);
+                }
+            }
+        }
+
+        function rotateLeft(rotations) {
+            const index = (directions.indexOf(direction) + rotations) % 4;
+            direction = directions[index];
+        }
+
+        function moveForward(steps) {
+            for (let i = 0; i < steps; i++) {
+                if (direction === 'right') x = Math.min(9, x + 1);
+                if (direction === 'down') y = Math.min(9, y + 1);
+                if (direction === 'left') x = Math.max(0, x - 1);
+                if (direction === 'up') y = Math.max(0, y - 1);
+            }
+        }
+
+        function runCommands() {
+            const commands = document.getElementById('commands').value.split('\n');
+            commands.forEach(command => {
+                const [cmd, param] = command.trim().toUpperCase().split(' ');
+                if (cmd === 'KROK') moveForward(param ? parseInt(param) : 1);
+                if (cmd === 'VLEVO') rotateLeft(param ? parseInt(param) : 1);
+                if (cmd === 'POLOZ') grid[y][x] = param || '';
+                if (cmd === 'RESET') { x = 0; y = 0; grid = grid.map(row => row.fill('')); }
+            });
+            drawGrid();
+        }
+
+        drawGrid();
+    </script>
+</body>
+</html>
